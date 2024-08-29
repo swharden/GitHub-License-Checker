@@ -18,14 +18,21 @@
 
         .license-ok {
             background-color: #73cda7 !important;
+            white-space: nowrap;
         }
 
         .license-warn {
             background-color: #ffd453 !important;
+            white-space: nowrap;
         }
 
         .license-danger {
             background-color: #ff759d !important;
+            white-space: nowrap;
+        }
+
+        td {
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -122,7 +129,8 @@
                             const tr = document.createElement('tr');
 
                             const tdName = document.createElement('td');
-                            tdName.innerHTML = `<a href='${repo.html_url}' target='_blank'>${repo.name}</a>`;
+                            tdName.innerHTML = `<a href='${repo.html_url}' target='_blank' class='fw-semibold'>${repo.name}</a><br>` +
+                                `<span>${repo.description}</span>`;
                             tr.appendChild(tdName);
 
                             const tdDate = document.createElement('td');
