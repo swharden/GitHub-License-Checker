@@ -38,14 +38,17 @@
 </head>
 
 <body>
-    <div class="content mx-auto my-5" id="main" style="max-width: 800px;">
+    <div class="container my-5" id="main" style="max-width: 800px;">
         <h1>GitHub License Checker</h1>
         <div class="fs-5">Check the license for all your GitHub repositories</div>
 
-        <div class="input-group mt-5 w-50">
-            <span class="input-group-text" id="basic-addon3">GitHub User</span>
-            <input type="text" class="form-control" id="unameInput" value="swharden">
-            <button class="btn btn-primary" onclick="update()">Search</button>
+        <div class="my-5 row align-items-end">
+            <div class="col">
+                <input type="text" class="form-control" id="unameInput" placeholder="GitHub Name" value="swharden">
+            </div>
+            <div class="col">
+                <button class="btn btn-primary" onclick="update()">Search</button>
+            </div>
         </div>
 
         <div class="d-flex d-flex align-items-center mt-2">
@@ -70,7 +73,7 @@
         </table>
 
         <footer class="text-muted my-5">
-            <a href='https://github.com/swharden/GitHub-License-Checker'>GitHub Readme Checker</a>
+            <a href='https://github.com/swharden/GitHub-License-Checker'>GitHub License Checker</a>
             by
             <a href='https://swharden.com'>Scott Harden</a>
         </footer>
@@ -176,6 +179,7 @@
 
         function update(event) {
             const username = document.getElementById('unameInput').value;
+            showError();
             resetTable();
             addPage(username, 1);
         }
