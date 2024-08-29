@@ -15,6 +15,18 @@
         a:hover {
             text-decoration: underline;
         }
+
+        .license-ok {
+            background-color: #73cda7 !important;
+        }
+
+        .license-warn {
+            background-color: #ffd453 !important;
+        }
+
+        .license-danger {
+            background-color: #ff759d !important;
+        }
     </style>
 </head>
 
@@ -25,8 +37,8 @@
 
         <div class="input-group mt-5 w-50">
             <span class="input-group-text" id="basic-addon3">GitHub User</span>
-            <input type="text" class="form-control" id="ghu" value="swharden">
-            <button class="btn btn-primary">Search</button>
+            <input type="text" class="form-control" id="unameInput" value="swharden">
+            <button class="btn btn-primary" onclick="update()">Search</button>
         </div>
 
         <div class="d-flex d-flex align-items-center mt-2">
@@ -38,11 +50,11 @@
 
         <div class="alert alert-danger collapse" role="alert" id="errorMessage"></div>
 
-
-        <table class="table w-auto mt-5" id="repos-table">
+        <table class="table table-hover w-auto mt-5 invisible" id="repos-table">
             <thead>
                 <tr>
                     <th scope="col">Repository</th>
+                    <th scope="col">Created</th>
                     <th scope="col">License</th>
                 </tr>
             </thead>
@@ -67,8 +79,9 @@
             }
         }
 
-        function clearTable() {
-
+        function resetTable() {
+            document.getElementById("repos-table-body").innerHTML = '';
+            document.getElementById("repos-table").classList.remove('invisible');
         }
 
         function showError(message) {
@@ -77,16 +90,20 @@
                 div.classList.add("collapse");
                 return;
             }
-            console.log(message);
+            console.error(message);
             div.innerText = message;
             div.classList.remove("collapse");
             setStatus("", false);
         }
 
         function addPage(username, page, maxPageCount = 5) {
-            const url = `https://api.github.com/users/${username}/repos?per_page=100&page=${page}`;
+
+            const isDevEnvironment = false;
+            const url = isDevEnvironment
+                ? '../dev/repos.json'
+                : `https://api.github.com/users/${username}/repos?per_page=100&page=${page}`;
+
             setStatus(`Loading page ${page}...`, true);
-            console.log(`fetching ${url}`);
             fetch(url)
                 .then(response => {
                     return response.ok
@@ -94,19 +111,46 @@
                         : response.json().then(json => { throw new Error(`${response.status} ${json.message}`); });
                 })
                 .then(repos => {
+                    const tableBody = document.getElementById("repos-table-body");
                     if (repos.len == 0 || page > maxPageCount) {
                         setStatus(`Loaded ${tableBody.rows.length} repositories (${page} API requests)`);
                         return;
                     }
-                    const tableBody = document.getElementById("repos-table-body");
                     repos
                         .filter(x => !x.fork)
                         .forEach(repo => {
-                            console.log(repo);
                             const tr = document.createElement('tr');
-                            tr.innerHTML = `<td><a href='${repo.html_url}' target='_blank'>${repo.name}</a></td><td>${repo.license.key}</td>`;
+
+                            const tdName = document.createElement('td');
+                            tdName.innerHTML = `<a href='${repo.html_url}' target='_blank'>${repo.name}</a>`;
+                            tr.appendChild(tdName);
+
+                            const tdDate = document.createElement('td');
+                            tdDate.innerText = new Date(repo.created_at).toLocaleDateString();
+                            tr.appendChild(tdDate);
+
+                            const license = repo.license ? repo.license.key.toUpperCase() : "NONE";
+                            const tdLicense = document.createElement('td');
+                            tdLicense.innerText = license;
+                            tdLicense.classList.add("fw-semibold");
+                            tdLicense.classList.add("text-center");
+                            if (license == "MIT") {
+                                tdLicense.classList.add("license-ok");
+                            } else if (license == "NONE") {
+                                tdLicense.classList.add("license-danger");
+                            } else {
+                                tdLicense.classList.add("license-warn");
+                            }
+                            tr.appendChild(tdLicense);
+
                             tableBody.appendChild(tr);
                         });
+
+                    if (!url.includes("http")) {
+                        setStatus(`Loaded ${tableBody.rows.length} repositories from test data`);
+                        return;
+                    }
+
                     addPage(username, page + 1);
                 })
                 .catch(error => {
@@ -114,13 +158,11 @@
                 });
         }
 
-        function update() {
-            const username = "swharden";
-            clearTable();
+        function update(event) {
+            const username = document.getElementById('unameInput').value;
+            resetTable();
             addPage(username, 1);
         }
-
-        update();
     </script>
 </body>
 
