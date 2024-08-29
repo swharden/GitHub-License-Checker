@@ -1,5 +1,6 @@
 # GitHub License Checker
 
-A web app for identifying GitHub repositories lacking license files
+A web app for checking the license of all your GitHub repositories
 
-https://swharden.github.io/GitHub-License-Checker/
+
+https://swharden.com/github-license-checker/
